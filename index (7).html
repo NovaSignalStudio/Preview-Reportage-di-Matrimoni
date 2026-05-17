@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportage di Matrimoni — Luca Panvini · Roma</title>
+<meta name="description" content="Reportage di Matrimoni: studio fotografico di Luca Panvini a Roma. Fotografia di matrimonio spontanea e autentica. Membro ANFM, Fearless, WPJA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
+<style>
+:root{--ink:#0c0b09;--white:#f8f5f0;--mid:#888;--gold:#b89a6a;--ease:.75s cubic-bezier(.25,.46,.45,.94)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto;font-size:16px}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--ink);color:var(--white);overflow-x:hidden;cursor:none}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+
+/* ── GRAIN ─────────────────────────────────────── */
+.grain{position:fixed;inset:-200%;width:400%;height:400%;z-index:1000;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 0.8s steps(2) infinite}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(2%,-2%)}50%{transform:translate(-3%,1%)}60%{transform:translate(4%,3%)}70%{transform:translate(-2%,-1%)}80%{transform:translate(1%,-4%)}90%{transform:translate(-4%,2%)}}
+
+/* ── CURSOR ─────────────────────────────────────── */
+#cur-dot{position:fixed;width:6px;height:6px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:opacity .3s}
+#cur-ring{position:fixed;width:40px;height:40px;border:1px solid rgba(255,255,255,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .4s,height .4s,border-color .4s,border-radius .4s}
+#cur-label{position:fixed;pointer-events:none;z-index:9997;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--white);opacity:0;transform:translate(-50%,-50%) translateY(4px);transition:opacity .3s,transform .3s;white-space:nowrap}
+body.c-view #cur-ring{width:80px;height:80px;border-color:rgba(255,255,255,.6)}
+body.c-view #cur-label{opacity:1;transform:translate(-50%,-50%) translateY(0)}
+body.c-drag #cur-ring{width:72px;height:72px;border-radius:8px;border-color:rgba(255,255,255,.5)}
+body.c-link #cur-ring{width:56px;height:56px;border-color:rgba(255,255,255,.7)}
+
+/* ── LOADER ─────────────────────────────────────── */
+#loader{position:fixed;inset:0;background:var(--ink);z-index:8000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px}
+.loader-word{font-family:'Instrument Serif',serif;font-size:clamp(32px,5vw,64px);font-weight:400;letter-spacing:.04em;color:var(--white);overflow:hidden}
+.loader-word span{display:block;transform:translateY(100%)}
+.loader-bar{width:240px;height:1px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:8px}
+.loader-fill{height:100%;width:0;background:var(--white)}
+
+/* ── NAV ─────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:32px 56px;mix-blend-mode:difference}
+.n-logo{font-family:'Instrument Serif',serif;font-size:17px;color:var(--white);letter-spacing:.02em;line-height:1.2;mix-blend-mode:normal}
+.n-logo em{font-style:italic;opacity:.6;font-size:14px;display:block;letter-spacing:.04em}
+.n-links{display:flex;align-items:center;gap:36px;list-style:none}
+.n-links a{font-size:11px;color:var(--white);letter-spacing:.12em;text-transform:uppercase;opacity:.55;transition:opacity .3s}
+.n-links a:hover{opacity:1}
+.n-cta{opacity:1!important;border:1px solid rgba(255,255,255,.35);padding:9px 22px;border-radius:999px;transition:background .3s,border-color .3s!important}
+.n-cta:hover{background:var(--white);color:var(--ink)!important}
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:300}
+.burger span{display:block;width:22px;height:1px;background:var(--white);transition:all .3s}
+.burger.x span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger.x span:nth-child(2){opacity:0}
+.burger.x span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ── MOBILE NAV ─────────────────────────────────── */
+.mnav{display:none;position:fixed;inset:0;background:var(--ink);z-index:490;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:48px 36px}
+.mnav.o{display:flex}
+.mnav a{font-family:'Instrument Serif',serif;font-size:clamp(32px,9vw,52px);color:var(--white);line-height:1.18;border-bottom:1px solid rgba(255,255,255,.1);width:100%;padding:12px 0;opacity:.7;transition:opacity .2s}
+.mnav a:first-child{border-top:1px solid rgba(255,255,255,.1)}
+.mnav a:hover{opacity:1}
+.mnav-foot{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.mnav-foot a{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);padding:7px 16px;border-radius:999px;transition:border-color .2s,color .2s}
+.mnav-foot a:hover{border-color:rgba(255,255,255,.6);color:var(--white)}
+
+/* ── HERO ─────────────────────────────────────────── */
+#hero{height:100svh;position:relative;overflow:hidden;display:flex;align-items:flex-end}
+
+/* Crossfade slideshow */
+.slides{position:absolute;inset:0}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 2s ease}
+.slide.active{opacity:1}
+.slide img{width:100%;height:100%;object-fit:cover;object-position:center}
+.slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,9,.92) 0%,rgba(12,11,9,.3) 50%,rgba(12,11,9,.1) 100%)}
+
+/* Parallax title */
+.hero-content{position:relative;z-index:2;padding:0 72px 80px;width:100%}
+.hero-eyebrow{font-size:10px;letter-spacing:.36em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:24px}
+.hero-title{font-family:'Instrument Serif',serif;font-size:clamp(56px,8.5vw,132px);font-weight:400;line-height:.92;letter-spacing:-.025em;color:var(--white)}
+.hero-title .line{overflow:hidden;display:block}
+.hero-title em{font-style:italic;color:rgba(255,255,255,.45)}
+.hero-sub{display:flex;align-items:flex-end;justify-content:space-between;margin-top:48px;gap:32px;flex-wrap:wrap}
+.hero-desc{font-size:14px;line-height:1.85;color:rgba(255,255,255,.5);max-width:380px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.btn-w{display:inline-block;background:var(--white);color:var(--ink);padding:14px 40px;border-radius:999px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;transition:transform .3s,background .3s}
+.btn-w:hover{transform:scale(1.04);background:#e8e4dc}
+.btn-ghost{display:inline-block;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);padding:14px 32px;border-radius:999px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:border-color .3s,color .3s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.7);color:var(--white)}
+
+/* Slide counter */
+.slide-counter{position:absolute;bottom:80px;right:72px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.sc-num{font-family:'Instrument Serif',serif;font-size:52px;font-weight:400;color:rgba(255,255,255,.08);line-height:1;letter-spacing:-.02em}
+.sc-bar{width:48px;height:1px;background:rgba(255,255,255,.15);position:relative;overflow:hidden}
+.sc-progress{position:absolute;left:0;top:0;height:100%;background:var(--white);width:0;transition:width 5s linear}
+
+/* scroll hint */
+.hero-scroll{position:absolute;left:72px;bottom:80px;z-index:3;display:flex;align-items:center;gap:12px}
+.hs-line{width:48px;height:1px;background:rgba(255,255,255,.25);position:relative;overflow:hidden}
+.hs-line::after{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:rgba(255,255,255,.6);animation:sl 2s ease infinite}
+@keyframes sl{0%{left:-100%}100%{left:100%}}
+.hs-text{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+
+/* ── KINETIC MARQUEE ────────────────────────────── */
+.marquee{overflow:hidden;padding:20px 0;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}
+.marquee-inner{display:flex;gap:64px;animation:mq 32s linear infinite;white-space:nowrap}
+.marquee-inner span{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:rgba(255,255,255,.12);flex-shrink:0}
+.marquee-inner span.hi{color:rgba(255,255,255,.7)}
+
+/* ── PHILOSOPHY ─────────────────────────────────── */
+#philosophy{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 72px;position:relative;overflow:hidden}
+.phi-bg{position:absolute;inset:0;background:var(--ink)}
+.phi-inner{max-width:960px;text-align:center;position:relative;z-index:1}
+.phi-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:40px}
+.phi-title{font-family:'Instrument Serif',serif;font-size:clamp(40px,6vw,88px);font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--white)}
+.phi-title em{font-style:italic;color:rgba(255,255,255,.35)}
+.phi-line{width:1px;height:64px;background:linear-gradient(to bottom,rgba(255,255,255,.3),transparent);margin:48px auto}
+.phi-sub{font-size:15px;line-height:2;color:rgba(255,255,255,.45);max-width:600px;margin:0 auto}
+/* big number bg */
+.phi-num{position:absolute;font-family:'Instrument Serif',serif;font-size:clamp(200px,30vw,400px);font-weight:400;color:rgba(255,255,255,.02);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;line-height:1;letter-spacing:-.05em;z-index:0}
+
+/* ── ABOUT SPLIT ────────────────────────────────── */
+#about{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+.about-visual{position:relative;overflow:hidden}
+.about-visual img{width:100%;height:100%;object-fit:cover;display:block}
+.about-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 70%,var(--ink) 100%)}
+.about-copy{padding:120px 72px;display:flex;flex-direction:column;justify-content:center;background:var(--ink)}
+.sec-eye{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.sec-eye::before{content:'';width:28px;height:1px;background:rgba(255,255,255,.25);flex-shrink:0}
+.sec-title{font-family:'Instrument Serif',serif;font-size:clamp(36px,4vw,60px);font-weight:400;line-height:1.06;letter-spacing:-.02em;color:var(--white)}
+.sec-title em{font-style:italic;color:rgba(255,255,255,.35)}
+.sec-body{font-size:14px;line-height:1.95;color:rgba(255,255,255,.5);margin-top:16px}
+.sec-body strong{color:rgba(255,255,255,.85);font-weight:300}
+
+/* Counting stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;padding-top:48px;border-top:1px solid rgba(255,255,255,.08)}
+.stat-n{font-family:'Instrument Serif',serif;font-size:52px;color:var(--white);line-height:1}
+.stat-l{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:8px}
+
+/* ── HORIZONTAL GALLERY ─────────────────────────── */
+#gallery{padding:120px 0 0;overflow:hidden;background:var(--ink)}
+.gal-head{padding:0 72px 56px;display:flex;justify-content:space-between;align-items:flex-end}
+.gal-track-wrap{position:relative;overflow:hidden;cursor:none}
+.gal-track{display:flex;gap:4px;width:max-content;padding-bottom:0}
+.gal-item{flex-shrink:0;position:relative;overflow:hidden}
+.gal-item img{height:72vh;width:auto;display:block;object-fit:cover;transition:transform .7s cubic-bezier(.25,.46,.45,.94),filter .4s}
+.gal-item:hover img{transform:scale(1.04);filter:brightness(1.08)}
+.gal-item-cap{position:absolute;bottom:0;left:0;right:0;padding:20px 20px 16px;background:linear-gradient(transparent,rgba(12,11,9,.7));font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);opacity:0;transition:opacity .35s;font-family:'Instrument Serif',serif;font-style:italic;font-size:14px}
+.gal-item:hover .gal-item-cap{opacity:1}
+/* drag hint */
+.gal-drag-hint{padding:20px 72px 0;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2);display:flex;align-items:center;gap:12px;margin-top:12px}
+.gal-drag-hint::before{content:'';width:32px;height:1px;background:rgba(255,255,255,.15)}
+
+/* ── TEAM ───────────────────────────────────────── */
+#team{padding:160px 0;background:var(--ink);overflow:hidden}
+.team-head{padding:0 72px 80px;display:flex;justify-content:space-between;align-items:flex-end}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}
+.tm{position:relative;overflow:hidden;border-right:1px solid rgba(255,255,255,.07)}
+.tm:last-child{border-right:none}
+.tm-img-wrap{position:relative;overflow:hidden;aspect-ratio:.75}
+.tm-img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:transform .8s cubic-bezier(.25,.46,.45,.94),filter .5s}
+.tm:hover .tm-img{transform:scale(1.06);filter:brightness(1.08)}
+.tm-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,9,.85) 0%,rgba(12,11,9,.0) 60%)}
+.tm-info{position:absolute;bottom:0;left:0;right:0;padding:28px;transform:translateY(40px);transition:transform .5s cubic-bezier(.25,.46,.45,.94)}
+.tm:hover .tm-info{transform:translateY(0)}
+.tm-name{font-family:'Instrument Serif',serif;font-size:22px;color:var(--white);line-height:1}
+.tm-role{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:6px}
+.tm-bio{font-size:12px;line-height:1.7;color:rgba(255,255,255,.5);margin-top:10px;opacity:0;transition:opacity .4s .1s}
+.tm:hover .tm-bio{opacity:1}
+
+/* certifications */
+.certs-strip{padding:40px 72px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:48px;flex-wrap:wrap}
+.cert-lbl{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.2);flex-shrink:0}
+.cert-list{display:flex;gap:32px;flex-wrap:wrap}
+.cert-item{font-family:'Instrument Serif',serif;font-size:15px;font-style:italic;color:rgba(255,255,255,.4);padding-left:20px;border-left:1px solid rgba(255,255,255,.12)}
+
+/* ── QUOTE SECTION ──────────────────────────────── */
+#quotes{min-height:100vh;background:#0f0e0b;display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative}
+.quote-big{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Instrument Serif',serif;font-size:clamp(120px,18vw,280px);color:rgba(255,255,255,.025);font-style:italic;white-space:nowrap;pointer-events:none;letter-spacing:-.03em}
+.quote-inner{position:relative;z-index:1;padding:120px 72px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.qcard{padding:48px 44px;border:1px solid rgba(255,255,255,.06);position:relative;transition:border-color .4s,background .4s}
+.qcard:hover{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.02)}
+.qcard::before{content:'\201C';font-family:'Instrument Serif',serif;font-size:64px;color:rgba(255,255,255,.08);position:absolute;top:20px;left:28px;line-height:1}
+.q-text{font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;line-height:1.75;color:rgba(255,255,255,.55);margin-bottom:28px;position:relative;z-index:1}
+.q-sep{width:24px;height:1px;background:rgba(255,255,255,.2);margin-bottom:20px}
+.q-name{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.q-where{font-size:12px;color:rgba(255,255,255,.3);margin-top:4px;font-style:italic;font-family:'Instrument Serif',serif}
+
+/* extra quotes small */
+.quote-row{padding:0 72px 80px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.qmini{padding:28px 32px;border-top:1px solid rgba(255,255,255,.07)}
+.qmini-txt{font-size:13px;line-height:1.8;color:rgba(255,255,255,.4);font-style:italic;margin-bottom:16px}
+.qmini-who{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.qmini-where{font-size:11px;color:rgba(255,255,255,.25);margin-top:3px;font-style:italic;font-family:'Instrument Serif',serif}
+
+/* ── SERVICES ───────────────────────────────────── */
+#services{background:var(--ink);padding:160px 72px;border-top:1px solid rgba(255,255,255,.07)}
+.srv-wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start}
+.srv-list{margin-top:40px}
+.si{border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer}
+.si:first-child{border-top:1px solid rgba(255,255,255,.07)}
+.si-head{display:flex;justify-content:space-between;align-items:center;padding:24px 0;gap:16px}
+.si-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--white);transition:color .3s}
+.si-ico{font-size:20px;color:rgba(255,255,255,.2);transition:transform .4s,color .3s;line-height:1}
+.si:hover .si-ico,.si.o .si-ico{color:var(--white)}
+.si.o .si-ico{transform:rotate(-45deg)}
+.si-body{font-size:13px;line-height:1.9;color:rgba(255,255,255,.4);max-height:0;overflow:hidden;transition:max-height .5s ease,padding .3s}
+.si.o .si-body{max-height:200px;padding-bottom:24px}
+.si-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.stg{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.12);padding:5px 14px;border-radius:999px;transition:border-color .3s,color .3s}
+.si.o .stg{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
+
+.srv-info-box{margin-top:40px;padding:40px;border:1px solid rgba(255,255,255,.07)}
+.sib-label{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:16px}
+.sib-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;color:rgba(255,255,255,.5);line-height:1.6}
+.sib-row:last-child{border:none}
+.sib-row::before{content:'';width:3px;height:3px;background:rgba(255,255,255,.35);border-radius:50%;flex-shrink:0;margin-top:8px}
+.pay-note{margin-top:24px;padding:20px;background:rgba(255,255,255,.03);border-left:1px solid rgba(255,255,255,.2)}
+.pay-note strong{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;font-weight:300}
+.pay-note p{font-size:13px;color:rgba(255,255,255,.35);line-height:1.7}
+
+/* ── FAQ ────────────────────────────────────────── */
+#faq{padding:160px 72px;background:#0f0e0b;border-top:1px solid rgba(255,255,255,.07)}
+.faq-wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:340px 1fr;gap:96px}
+.faq-list{margin-top:0}
+.fq{border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer}
+.fq:first-child{border-top:1px solid rgba(255,255,255,.07)}
+.fq-q{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;font-size:14px;color:rgba(255,255,255,.6);font-weight:300;line-height:1.4;transition:color .3s}
+.fq:hover .fq-q,.fq.o .fq-q{color:var(--white)}
+.fq-q::after{content:'+';font-size:22px;font-weight:200;color:rgba(255,255,255,.2);flex-shrink:0;transition:transform .35s,color .3s}
+.fq.o .fq-q::after{transform:rotate(45deg);color:var(--white)}
+.fq-a{font-size:13px;line-height:1.9;color:rgba(255,255,255,.35);max-height:0;overflow:hidden;transition:max-height .5s ease,padding .3s}
+.fq.o .fq-a{max-height:300px;padding-bottom:22px}
+
+/* ── CONTACT ────────────────────────────────────── */
+#contact{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(255,255,255,.07)}
+.cl{padding:120px 72px;background:var(--ink)}
+.cl .sec-body{margin-top:16px}
+.ch-list{margin-top:48px}
+.ch{display:flex;align-items:center;gap:18px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.06);transition:opacity .25s;cursor:none}
+.ch:first-child{border-top:1px solid rgba(255,255,255,.06)}
+.ch:hover{opacity:.55}
+.ch-ico{width:36px;height:36px;background:rgba(255,255,255,.05);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:rgba(255,255,255,.6)}
+.ch-lb{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:4px}
+.ch-vl{font-size:13px;color:var(--white)}
+
+.cf{padding:120px 72px;background:#0f0e0b}
+.cf-title{font-family:'Instrument Serif',serif;font-size:clamp(28px,3vw,44px);color:var(--white);margin-bottom:36px;line-height:1.1;letter-spacing:-.01em}
+.cf-title em{font-style:italic;color:rgba(255,255,255,.35)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.fg label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.fg input,.fg select,.fg textarea{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--white);padding:13px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:300;width:100%;outline:none;-webkit-appearance:none;border-radius:0;transition:border-color .3s}
+.fg input::placeholder,.fg textarea::placeholder{color:rgba(255,255,255,.2)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:rgba(255,255,255,.4)}
+.fg select option{background:#111}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.fg textarea{height:88px;resize:none}
+.btn-sub{width:100%;padding:16px;background:var(--white);color:var(--ink);border:none;font-family:'Inter',sans-serif;font-size:11px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .3s;margin-top:8px}
+.btn-sub:hover{background:#e8e4dc}
+
+/* ── FOOTER ─────────────────────────────────────── */
+footer{background:#080807;padding:80px 72px 44px;border-top:1px solid rgba(255,255,255,.06)}
+.ft-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:56px;margin-bottom:64px}
+.ft-brand{font-family:'Instrument Serif',serif;font-size:32px;color:var(--white);letter-spacing:-.01em}
+.ft-brand em{font-style:italic;color:rgba(255,255,255,.3)}
+.ft-tagline{font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;letter-spacing:.1em;text-transform:uppercase}
+.ft-founded{font-size:12px;color:rgba(255,255,255,.25);margin-top:6px}
+.ft-certs{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.ft-cert{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.1);padding:4px 10px}
+.ft-cols{display:flex;gap:64px;flex-wrap:wrap}
+.ft-col h5{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:20px}
+.ft-col a,.ft-col p{display:block;font-size:12px;color:rgba(255,255,255,.35);margin-bottom:10px;transition:color .2s}
+.ft-col a:hover{color:var(--white)}
+.ft-bot{display:flex;justify-content:space-between;align-items:center;padding-top:32px;border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap;gap:12px}
+.ft-bot p{font-size:11px;color:rgba(255,255,255,.2)}
+
+/* ── LIGHTBOX ───────────────────────────────────── */
+#lb{display:none;position:fixed;inset:0;background:rgba(8,8,7,.97);z-index:6000;align-items:center;justify-content:center}
+#lb.o{display:flex}
+#lb-img{max-width:88vw;max-height:88vh;object-fit:contain}
+.lbx{position:absolute;top:28px;right:36px;font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.3);cursor:pointer;transition:color .2s}
+.lbx:hover{color:var(--white)}
+.lbb{position:absolute;top:50%;transform:translateY(-50%);font-size:40px;color:rgba(255,255,255,.2);cursor:pointer;background:none;border:none;padding:0 28px;line-height:1;transition:color .2s;font-family:'Instrument Serif',serif}
+.lbb:hover{color:var(--white)}
+.lb-p{left:0}.lb-n{right:0}
+.lb-cap{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:rgba(255,255,255,.35);white-space:nowrap}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:768px){
+  nav{padding:20px 24px;mix-blend-mode:normal;background:rgba(12,11,9,.6);backdrop-filter:blur(12px)}
+  .n-links{display:none}.burger{display:flex}
+  .hero-content{padding:0 24px 56px}
+  .hero-sub{flex-direction:column;align-items:flex-start;gap:24px}
+  .slide-counter{right:24px;bottom:56px}
+  .hero-scroll{left:24px;bottom:56px}
+  #philosophy{padding:80px 24px}
+  #about{grid-template-columns:1fr}
+  .about-visual{min-height:360px}
+  .about-copy{padding:64px 24px}
+  .stats-row{grid-template-columns:repeat(3,1fr);gap:16px}.stat-n{font-size:36px}
+  .gal-head{padding:0 24px 40px;flex-direction:column;align-items:flex-start;gap:16px}
+  .gal-drag-hint{padding:12px 24px 0}
+  .gal-item img{height:56vw}
+  #team{padding:100px 0}
+  .team-head{padding:0 24px 48px;flex-direction:column;gap:16px}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .tm{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
+  .tm:nth-child(odd){border-right:1px solid rgba(255,255,255,.07)}
+  .tm-info{transform:translateY(0)}
+  .tm-bio{opacity:1}
+  .certs-strip{padding:28px 24px;gap:20px}
+  .quote-inner{grid-template-columns:1fr;padding:80px 24px}
+  .quote-row{grid-template-columns:1fr;padding:0 24px 64px}
+  #services{padding:100px 24px}
+  .srv-wrap{grid-template-columns:1fr;gap:48px}
+  #faq{padding:100px 24px}
+  .faq-wrap{grid-template-columns:1fr;gap:40px}
+  #contact{grid-template-columns:1fr}
+  .cl{padding:80px 24px}
+  .cf{padding:80px 24px}
+  .frow{grid-template-columns:1fr}
+  footer{padding:64px 24px 36px}
+  .ft-top{flex-direction:column;gap:36px}
+  .ft-cols{flex-direction:column;gap:24px}
+  .ft-bot{flex-direction:column;text-align:center}
+}
+
+@media(min-width:769px) and (max-width:1100px){
+  nav{padding:22px 36px}
+  .hero-content{padding:0 48px 68px}
+  .hero-scroll,.slide-counter{left:48px;right:auto}
+  .slide-counter{left:auto;right:48px}
+  #about{grid-template-columns:1fr 1fr}
+  .about-copy{padding:80px 48px}
+  .gal-head{padding:0 36px 44px}
+  .gal-drag-hint{padding:12px 36px 0}
+  #team{padding:120px 0}
+  .team-head{padding:0 36px 56px}
+  .team-grid{grid-template-columns:repeat(2,1fr)}
+  .tm:nth-child(2){border-right:none}
+  .certs-strip{padding:32px 36px}
+  .quote-inner{padding:100px 36px;grid-template-columns:1fr 1fr}
+  .quote-row{padding:0 36px 64px;grid-template-columns:1fr 1fr}
+  #services{padding:120px 36px}
+  #faq{padding:120px 36px}
+  .faq-wrap{grid-template-columns:240px 1fr;gap:60px}
+  #contact{grid-template-columns:1fr 1fr}
+  .cl,.cf{padding:80px 36px}
+  footer{padding:64px 36px 40px}
+}
+
+/* ── REVEAL CLASSES (fallback without GSAP) ─────── */
+.rv-init{opacity:0;transform:translateY(40px);transition:opacity .9s ease,transform .9s ease}
+.rv-init.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+<div id="cur-label">GUARDA</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-word"><span id="lw1">Reportage</span></div>
+  <div class="loader-word"><span id="lw2">di Matrimoni</span></div>
+  <div class="loader-bar"><div class="loader-fill" id="lfill"></div></div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mnav" id="mnav">
+  <a href="#philosophy" onclick="cM()">Studio</a>
+  <a href="#about" onclick="cM()">Chi siamo</a>
+  <a href="#gallery" onclick="cM()">Galleria</a>
+  <a href="#team" onclick="cM()">Team</a>
+  <a href="#quotes" onclick="cM()">Testimonianze</a>
+  <a href="#faq" onclick="cM()">FAQ</a>
+  <a href="#contact" onclick="cM()">Contatti</a>
+  <div class="mnav-foot">
+    <a href="https://www.instagram.com/reportagedimatrimoni/" target="_blank">Instagram</a>
+    <a href="https://www.facebook.com/reportagedimatrimoni/" target="_blank">Facebook</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="n-logo" href="#">
+    Reportage di Matrimoni
+    <em>Studio fotografico · Roma</em>
+  </a>
+  <ul class="n-links">
+    <li><a href="#philosophy">Studio</a></li>
+    <li><a href="#gallery">Galleria</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#quotes">Testimonianze</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact" class="n-cta">Contattaci</a></li>
+  </ul>
+  <div class="burger" id="bur" onclick="tM()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="slides" id="slides">
+    <div class="slide active"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2017/09/sposa_roma-1080x530.jpg" alt="Sposa Roma"></div>
+    <div class="slide"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/03/reportage_matrimonio_umbria_italia-1080x530.jpg" alt="Reportage Umbria"></div>
+    <div class="slide"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/03/reportage_matrimonio_Gaeta_Ita-1080x530.jpg" alt="Reportage Gaeta"></div>
+    <div class="slide"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/04/Festa_Balli-Matrimonio_OK-1080x720.jpg" alt="Festa matrimonio"></div>
+    <div class="slide"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2023/09/1Foto_-Matrimonio_Ponza-1080x720.jpg" alt="Matrimonio Ponza"></div>
+  </div>
+
+  <div class="hero-content" id="hero-content">
+    <p class="hero-eyebrow">Fotografi di matrimonio · Roma · Dal 2009</p>
+    <h1 class="hero-title" id="hero-title">
+      <span class="line"><span>Raccontiamo</span></span>
+      <span class="line"><span>storie, <em>catturiamo</em></span></span>
+      <span class="line"><span>emozioni.</span></span>
+    </h1>
+    <div class="hero-sub">
+      <p class="hero-desc">Fotografia spontanea e autentica. Ogni matrimonio narrato come una storia visiva unica, senza pose forzate, con discrezione e passione.</p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn-w">Richiedi un incontro</a>
+        <a href="#gallery" class="btn-ghost">Vedi la galleria</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-counter" id="sc">
+    <div class="sc-num" id="sc-num">01</div>
+    <div class="sc-bar"><div class="sc-progress" id="sc-prog"></div></div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hs-line"></div>
+    <span class="hs-text">Scorri</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-inner">
+    <span class="hi">Reportage di Matrimoni</span><span>Fotografia Spontanea</span><span class="hi">Roma · Lazio · Toscana · Puglia</span><span>Luca Panvini</span><span class="hi">Dal 2009</span><span>Emozioni Autentiche</span><span class="hi">ANFM · Fearless · WPJA</span><span>Italia & Estero</span>
+    <span class="hi">Reportage di Matrimoni</span><span>Fotografia Spontanea</span><span class="hi">Roma · Lazio · Toscana · Puglia</span><span>Luca Panvini</span><span class="hi">Dal 2009</span><span>Emozioni Autentiche</span><span class="hi">ANFM · Fearless · WPJA</span><span>Italia & Estero</span>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="phi-bg"></div>
+  <div class="phi-num" id="phi-num">2009</div>
+  <div class="phi-inner">
+    <p class="phi-label">La nostra filosofia</p>
+    <h2 class="phi-title" id="phi-title">Raccontare <em>storie</em><br>non scattare <em>pose.</em></h2>
+    <div class="phi-line"></div>
+    <p class="phi-sub">Ci piace raccontare in maniera autentica e naturale il matrimonio, dando rilevanza alla narrazione di una storia rispetto alla creazione di singole immagini. La passione per il racconto fotografico e la documentazione spontanea del matrimonio sono le principali caratteristiche dei nostri servizi.</p>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual">
+    <img src="https://reportagedimatrimoni.it/wp-content/uploads/2015/07/fotografo_matrimonio_roma10.jpg" alt="Servizio fotografico matrimonio" loading="lazy">
+  </div>
+  <div class="about-copy">
+    <p class="sec-eye">Lo studio</p>
+    <h2 class="sec-title">Uno studio,<br>tanti professionisti,<br>la stessa <em>passione</em></h2>
+    <p class="sec-body">Reportage di Matrimoni è uno <strong>studio fotografico fondato nel 2009 da Luca Panvini</strong>, composto da figure specializzate accomunate dallo stesso approccio: spontaneità, rispetto delle situazioni, ricerca di momenti significativi ed emozionanti.</p>
+    <p class="sec-body" style="margin-top:12px">Di base a Roma, realizziamo <strong>reportage in tutta Italia</strong> — Lazio, Toscana, Umbria, Puglia, Sicilia — e all'estero. Prima di ogni lavoro stabiliamo un contatto personale con gli sposi, per una piena condivisione del nostro approccio all'evento.</p>
+    <div class="stats-row">
+      <div><div class="stat-n" data-count="15">0</div><div class="stat-l">Anni attivi</div></div>
+      <div><div class="stat-n" data-count="4">0</div><div class="stat-l">Professionisti</div></div>
+      <div><div class="stat-n" data-count="3">0</div><div class="stat-l">Lingue</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY ORIZZONTALE -->
+<section id="gallery">
+  <div class="gal-head">
+    <div>
+      <p class="sec-eye">I nostri reportage</p>
+      <h2 class="sec-title">Storie in <em>evidenza</em></h2>
+    </div>
+    <a href="https://reportagedimatrimoni.it/gallerie/" target="_blank" class="btn-ghost" style="align-self:flex-end">Vedi tutti →</a>
+  </div>
+  <div class="gal-track-wrap" id="galWrap">
+    <div class="gal-track" id="galTrack">
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2017/09/sposa_roma-1080x530.jpg" alt="" loading="lazy"><div class="gal-item-cap">Sposa · Roma</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/04/Festa_Balli-Matrimonio_OK-1080x720.jpg" alt="" loading="lazy"><div class="gal-item-cap">Festa di matrimonio</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/03/reportage_matrimonio_umbria_italia-1080x530.jpg" alt="" loading="lazy"><div class="gal-item-cap">Reportage · Umbria</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2026/03/reportage_matrimonio_Gaeta_Ita-1080x530.jpg" alt="" loading="lazy"><div class="gal-item-cap">Reportage · Gaeta</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2023/09/1Foto_-Matrimonio_Ponza-1080x720.jpg" alt="" loading="lazy"><div class="gal-item-cap">Matrimonio in barca · Ponza</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2018/02/Anajose_19-1080x720.jpg" alt="" loading="lazy"><div class="gal-item-cap">Matrimonio intimo · Roma</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2015/07/fotografo_matrimonio_roma10.jpg" alt="" loading="lazy"><div class="gal-item-cap">Reportage fotografico</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2015/07/fotografo_matrimonio_roma9.jpg" alt="" loading="lazy"><div class="gal-item-cap">Video matrimonio</div></div>
+      <div class="gal-item"><img src="https://reportagedimatrimoni.it/wp-content/uploads/2015/07/fotografo_matrimonio_roma12.jpg" alt="" loading="lazy"><div class="gal-item-cap">Album fotografico</div></div>
+    </div>
+  </div>
+  <div class="gal-drag-hint">Trascina per esplorare</div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="team-head">
+    <div>
+      <p class="sec-eye">Chi siamo</p>
+      <h2 class="sec-title">I fotografi <em>dello studio</em></h2>
+    </div>
+    <a href="#contact" class="btn-ghost">Scrivici per conoscerci →</a>
+  </div>
+  <div class="team-grid">
+    <div class="tm">
+      <div class="tm-img-wrap">
+        <img class="tm-img" src="https://reportagedimatrimoni.it/wp-content/uploads/2015/08/1.luca_.jpg" alt="Luca Panvini" loading="lazy">
+        <div class="tm-overlay"></div>
+        <div class="tm-info">
+          <div class="tm-name">Luca Panvini</div>
+          <div class="tm-role">Fotografo fondatore · 2009</div>
+          <p class="tm-bio">Fondatore dello studio. Membro ANFM, Fearless Photographers e WPJA. La sua visione autentica guida lo studio da oltre 15 anni.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tm">
+      <div class="tm-img-wrap">
+        <img class="tm-img" src="https://reportagedimatrimoni.it/wp-content/uploads/2021/02/fulviaprofilo.jpg" alt="Fulvia Bernacca" loading="lazy">
+        <div class="tm-overlay"></div>
+        <div class="tm-info">
+          <div class="tm-name">Fulvia Bernacca</div>
+          <div class="tm-role">Fotografa associata</div>
+          <p class="tm-bio">Porta il suo sguardo sensibile ad ogni matrimonio. La stessa passione per il racconto autentico che caratterizza lo studio.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tm">
+      <div class="tm-img-wrap">
+        <img class="tm-img" src="https://reportagedimatrimoni.it/wp-content/uploads/2021/02/ALE-BN-1.jpg" alt="Alessandro Sgarito" loading="lazy">
+        <div class="tm-overlay"></div>
+        <div class="tm-info">
+          <div class="tm-name">Alessandro Sgarito</div>
+          <div class="tm-role">Fotografo associato</div>
+          <p class="tm-bio">Spontaneità, rispetto del momento, ricerca di istanti significativi: l'approccio di Alessandro è pienamente in sintonia con lo studio.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tm">
+      <div class="tm-img-wrap">
+        <img class="tm-img" src="https://reportagedimatrimoni.it/wp-content/uploads/2022/01/massimiliano_curcio.jpg" alt="Massimiliano Curcio" loading="lazy">
+        <div class="tm-overlay"></div>
+        <div class="tm-info">
+          <div class="tm-name">Massimiliano Curcio</div>
+          <div class="tm-role">Videografo associato</div>
+          <p class="tm-bio">Film di matrimonio emozionali e autentici, in perfetta sintonia con lo stile reportage dello studio.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="certs-strip">
+    <span class="cert-lbl">Associazioni</span>
+    <div class="cert-list">
+      <span class="cert-item">ANFM — Associazione Nazionale Fotografi Matrimonialisti</span>
+      <span class="cert-item">Fearless Photographers</span>
+      <span class="cert-item">WPJA — Wedding Photojournalist Association</span>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTES -->
+<section id="quotes">
+  <div class="quote-big">emozioni</div>
+  <div class="quote-inner">
+    <div class="qcard">
+      <p class="q-text">Per noi vedere le foto è stato scoprire che loro arrivano a vedere l'anima oltre che il corpo. Come bellissime farfalle che si posano lievi senza fare mostra di sé ma che nel "volo" hanno catturato tutte le immagini più belle.</p>
+      <div class="q-sep"></div>
+      <div class="q-name">Manuel e Cristina</div>
+      <div class="q-where">Santuario del Pelingo al Furlo · Giugno 2019</div>
+    </div>
+    <div class="qcard">
+      <p class="q-text">Guardare queste foto ed emozionarsi come quel giorno… è come se tutte quelle emozioni si fossero fermate in quell'istante. Questi scatti sono e saranno la cosa più preziosa che ci rimarrà nel tempo.</p>
+      <div class="q-sep"></div>
+      <div class="q-name">Giulio & Giulia</div>
+      <div class="q-where">Basilica di Santa Maria degli Angeli · Giugno 2018</div>
+    </div>
+    <div class="qcard">
+      <p class="q-text">Thank you for being there to preserve our memories, it truly means the world to us. You and your team were excellent — photography isn't something we would have prioritized, but now we see what a mistake that would have been.</p>
+      <div class="q-sep"></div>
+      <div class="q-name">June and Cristoforo</div>
+      <div class="q-where">Rome · November 2017</div>
+    </div>
+  </div>
+  <div class="quote-row">
+    <div class="qmini">
+      <p class="qmini-txt">Fantastiche foto, vive di emozioni e che parlano d'amore! L'amore colto in ogni scatto, negli sguardi di noi sposi, degli ospiti e l'amore per la fotografia!</p>
+      <div class="qmini-who">Alessia e Domenico</div>
+      <div class="qmini-where">Terrazza Borromini · 3 Maggio 2019</div>
+    </div>
+    <div class="qmini">
+      <p class="qmini-txt">Niente pose, solo una marea di emozioni, anche caotiche, proprio come è stato il nostro giorno… Pieno di brindisi e capelli fuori posto. Bellissimo!</p>
+      <div class="qmini-who">Valentina e Marco</div>
+      <div class="qmini-where">Il Casale Ostia · Giugno 2017</div>
+    </div>
+    <div class="qmini">
+      <p class="qmini-txt">Una presenza costante ma estremamente discreta. Le foto sono bellissime e raccontano in modo sublime il giorno del nostro matrimonio. Non potevamo desiderare di più.</p>
+      <div class="qmini-who">Marco e Anne</div>
+      <div class="qmini-where">Basilica Santi Cosma e Damiano · Maggio 2016</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="srv-wrap">
+    <div>
+      <p class="sec-eye">Il nostro lavoro</p>
+      <h2 class="sec-title">Servizi per<br>raccontare <em>la tua storia</em></h2>
+      <div class="srv-list">
+        <div class="si" onclick="tSi(this)">
+          <div class="si-head"><span class="si-title">Servizio Fotografico</span><span class="si-ico">↗</span></div>
+          <div class="si-body">Documentiamo ogni fase della giornata: preparazione della sposa, cerimonia, sessione fotografica degli sposi, ricevimento e taglio torta. Copertura standard 8–10 ore. Personalizzabile su richiesta.<div class="si-tags"><span class="stg">Preparazione sposa</span><span class="stg">Cerimonia</span><span class="stg">Ricevimento</span><span class="stg">Taglio torta</span></div></div>
+        </div>
+        <div class="si" onclick="tSi(this)">
+          <div class="si-head"><span class="si-title">Album Fotografici</span><span class="si-ico">↗</span></div>
+          <div class="si-body">Album artigianali di alta qualità per sfogliare e rivivere la vostra storia. Disponibili anche album regalo per i parenti, in diversi formati e finiture. Ogni album progettato su misura.<div class="si-tags"><span class="stg">Album matrimonio</span><span class="stg">Album regalo sposi</span><span class="stg">Fotolibro</span></div></div>
+        </div>
+        <div class="si" onclick="tSi(this)">
+          <div class="si-head"><span class="si-title">Reportage Video</span><span class="si-ico">↗</span></div>
+          <div class="si-body">In collaborazione con videografi professionisti selezionati, offriamo un servizio video in perfetta sintonia con lo stile reportage. Film emozionali che completano il racconto fotografico.<div class="si-tags"><span class="stg">Highlight film</span><span class="stg">Full day</span><span class="stg">Montaggio artistico</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="sec-eye">Come lavoriamo</p>
+      <h2 class="sec-title">Ogni giorno<br>una <em>storia unica</em></h2>
+      <p class="sec-body" style="margin-top:16px">Fotografie spontanee e discrezione nelle riprese fotografiche. La nostra modalità di vivere e riprendere il vostro giorno più bello. Post produzione professionale su ogni file. Scatti a colori + bianco e nero su richiesta.</p>
+      <div class="srv-info-box">
+        <div class="sib-label">Incluso nel servizio standard</div>
+        <div class="sib-row">Preparazione della sposa</div>
+        <div class="sib-row">Documentazione completa della cerimonia</div>
+        <div class="sib-row">Sessione fotografica degli sposi (20–30 min)</div>
+        <div class="sib-row">Ricevimento, balli, taglio torta</div>
+        <div class="sib-row">Post produzione professionale su ogni file</div>
+        <div class="sib-row">Scatti a colori + bianco e nero su richiesta</div>
+      </div>
+      <div class="pay-note">
+        <strong>Prenotazione</strong>
+        <p>Contratto firmato + caparra del 30% del totale. Il fotografo sarà sempre quello scelto da voi. Prezzi personalizzati: contattateci.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-wrap">
+    <div>
+      <p class="sec-eye">Domande frequenti</p>
+      <h2 class="sec-title">Tutto<br>quello<br>che volete<br><em>sapere</em></h2>
+      <p class="sec-body" style="margin-top:20px">Non trovate la risposta? <a href="#contact" style="color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:1px">Contattateci direttamente.</a></p>
+    </div>
+    <div class="faq-list">
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Quali zone coprite?</div><div class="fq-a">Ovunque piaccia il nostro modo di fotografare. Siamo a Roma ma lavoriamo regolarmente in tutta Italia — principalmente Lazio, Toscana, Umbria e Puglia — e all'estero. Massima disponibilità agli spostamenti.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Perché i prezzi non sono pubblicati?</div><div class="fq-a">Perché non sappiamo ancora nulla di voi e del matrimonio che state organizzando. Contattateci: saremo felici di fornire tutte le informazioni sui servizi e i prezzi per trovare la soluzione più vicina alle vostre esigenze.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Cosa include il servizio fotografico standard?</div><div class="fq-a">Preparazione della sposa, cerimonia, sessione fotografica degli sposi, ricevimento e taglio torta. In totale circa 8–10 ore. La preparazione dello sposo non è inclusa nel standard ma può essere aggiunta.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Come si prenota il servizio?</div><div class="fq-a">Attraverso la firma di un contratto e il pagamento del 30% dell'importo totale a titolo di caparra. Solo con contratto firmato e caparra la data è ufficialmente confermata.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Chi fotograferà il nostro matrimonio?</div><div class="fq-a">Nel contratto viene sempre specificato chi svolgerà il servizio. Il fotografo presente sarà sempre quello conosciuto, valutato e scelto da voi.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Possiamo avere foto a colori e in bianco e nero?</div><div class="fq-a">Certo. Scattiamo sempre a colori e, se richiesto, in post produzione vireremo in bianco e nero alcuni degli scatti più rappresentativi. Post produzione professionale su ogni file.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Possiamo avere foto posate con parenti e amici?</div><div class="fq-a">Certamente. Una bella foto di gruppo non toglie nulla allo stile reportage. La sessione posata avviene durante il ricevimento, in circa 20 minuti, lasciando a voi tutta la libertà di godervi la festa.</div></div>
+      <div class="fq" onclick="tFq(this)"><div class="fq-q">Offrite anche servizi video?</div><div class="fq-a">Per il video collaboriamo con ottimi professionisti del settore in perfetta sintonia con il nostro stile reportage. Contattateci per pacchetti foto + video.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="cl">
+    <p class="sec-eye">Iniziamo a conoscerci</p>
+    <h2 class="sec-title">Parliamo del<br>vostro <em>matrimonio</em></h2>
+    <p class="sec-body">Contattateci per un primo incontro, per visionare i portfolio completi e ricevere un preventivo personalizzato. Rispondiamo entro 24 ore.</p>
+    <div class="ch-list">
+      <a href="https://www.instagram.com/reportagedimatrimoni/" class="ch" target="_blank"><div class="ch-ico">◎</div><div><span class="ch-lb">Instagram</span><span class="ch-vl">@reportagedimatrimoni</span></div></a>
+      <a href="https://www.facebook.com/reportagedimatrimoni/" class="ch" target="_blank"><div class="ch-ico">f</div><div><span class="ch-lb">Facebook</span><span class="ch-vl">reportagedimatrimoni</span></div></a>
+      <a href="https://reportagedimatrimoni.it/contatti/" class="ch" target="_blank"><div class="ch-ico">↗</div><div><span class="ch-lb">Sito ufficiale</span><span class="ch-vl">reportagedimatrimoni.it</span></div></a>
+      <div class="ch"><div class="ch-ico">📍</div><div><span class="ch-lb">Sede</span><span class="ch-vl">Roma, Italia</span></div></div>
+    </div>
+  </div>
+  <div class="cf">
+    <h2 class="cf-title">Raccontateci<br>la vostra <em>storia</em></h2>
+    <div class="frow">
+      <div class="fg"><label>I vostri nomi</label><input type="text" placeholder="Sposa & Sposo"></div>
+      <div class="fg"><label>Telefono</label><input type="tel" placeholder="+39 000 000 0000"></div>
+    </div>
+    <div class="fg"><label>Email</label><input type="email" placeholder="vostranozze@email.it"></div>
+    <div class="frow">
+      <div class="fg"><label>Data del matrimonio</label><input type="date"></div>
+      <div class="fg"><label>Servizio</label>
+        <select>
+          <option value="">Seleziona...</option>
+          <option>Solo fotografia</option>
+          <option>Foto + Video</option>
+          <option>Fotografia + Album</option>
+          <option>Pacchetto completo</option>
+          <option>Informazioni generali</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Location / Città</label><input type="text" placeholder="Es. Roma, Firenze, Puglia, Toscana..."></div>
+    <div class="fg"><label>Il vostro matrimonio</label><textarea placeholder="Raccontateci come immaginate la vostra giornata, lo stile che cercate..."></textarea></div>
+    <button class="btn-sub" onclick="doSub(this)">Invia messaggio →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div>
+      <div class="ft-brand">Reportage <em>di Matrimoni</em></div>
+      <div class="ft-tagline">Studio fotografico · Roma · Dal 2009</div>
+      <div class="ft-founded">Fondato da Luca Panvini</div>
+      <div class="ft-certs">
+        <span class="ft-cert">ANFM</span>
+        <span class="ft-cert">Fearless</span>
+        <span class="ft-cert">WPJA</span>
+      </div>
+    </div>
+    <div class="ft-cols">
+      <div class="ft-col">
+        <h5>Pagine</h5>
+        <a href="#philosophy">Studio</a>
+        <a href="#about">Chi siamo</a>
+        <a href="#gallery">Galleria</a>
+        <a href="#team">Team</a>
+        <a href="#quotes">Testimonianze</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contatti</a>
+      </div>
+      <div class="ft-col">
+        <h5>Servizi</h5>
+        <a href="#services">Reportage fotografico</a>
+        <a href="#services">Album fotografici</a>
+        <a href="#services">Album regalo sposi</a>
+        <a href="#services">Video matrimonio</a>
+      </div>
+      <div class="ft-col">
+        <h5>Zone</h5>
+        <p>Roma · Lazio</p>
+        <p>Toscana · Umbria</p>
+        <p>Puglia · Sicilia</p>
+        <p>Italia & Estero</p>
+      </div>
+      <div class="ft-col">
+        <h5>Social</h5>
+        <a href="https://www.instagram.com/reportagedimatrimoni/" target="_blank">Instagram</a>
+        <a href="https://www.facebook.com/reportagedimatrimoni/" target="_blank">Facebook</a>
+        <a href="https://reportagedimatrimoni.it" target="_blank">reportagedimatrimoni.it</a>
+      </div>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <p>© 2026 Luca Panvini · P.IVA: IT09622751007 · Reportage di Matrimoni</p>
+    <p>Tutti i diritti riservati · Roma, Italia</p>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lb">
+  <span class="lbx" onclick="cLb()">✕ chiudi</span>
+  <button class="lbb lb-p" onclick="lbN(-1)">‹</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lbb lb-n" onclick="lbN(1)">›</button>
+  <div class="lb-cap" id="lb-cap"></div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── LOADER ─── */
+const tl = gsap.timeline({onComplete:()=>{
+  gsap.to('#loader',{opacity:0,duration:.6,onComplete:()=>document.getElementById('loader').style.display='none'});
+  initHero();
+}});
+tl.to('#lw1',{y:'0%',duration:.7,ease:'power3.out'},0.2)
+  .to('#lw2',{y:'0%',duration:.7,ease:'power3.out'},0.4)
+  .to('#lfill',{width:'100%',duration:1.2,ease:'power2.inOut'},0.3);
+
+/* ── CURSOR ─── */
+const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring'),lbl=document.getElementById('cur-label');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';lbl.style.left=mx+'px';lbl.style.top=(my+36)+'px'});
+(function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+
+document.querySelectorAll('.gal-item,.gal-track-wrap').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('c-view','c-drag') || document.body.classList.remove('c-link'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('c-view','c-drag'));
+});
+document.querySelectorAll('a,button,.fq,.si,.tm').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{document.body.classList.add('c-link');document.body.classList.remove('c-view','c-drag')});
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('c-link'));
+});
+
+/* ── NAV SCROLL ─── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').style.background = scrollY > 80 ? 'rgba(12,11,9,.85)' : '';
+  if(scrollY>80) document.getElementById('nav').style.backdropFilter='blur(20px)';
+  else document.getElementById('nav').style.backdropFilter='none';
+  document.getElementById('nav').style.mixBlendMode = scrollY>80?'normal':'difference';
+},{passive:true});
+
+/* ── MOBILE NAV ─── */
+function tM(){const mn=document.getElementById('mnav'),b=document.getElementById('bur');mn.classList.toggle('o');b.classList.toggle('x')}
+function cM(){document.getElementById('mnav').classList.remove('o');document.getElementById('bur').classList.remove('x')}
+
+/* ── HERO CROSSFADE ─── */
+let slideIdx=0, slideTimer;
+const slides=document.querySelectorAll('.slide');
+function initHero(){
+  /* title reveal */
+  const lines = document.querySelectorAll('#hero-title .line span');
+  gsap.fromTo(lines,{y:'110%'},{y:'0%',duration:1.1,stagger:.12,ease:'power4.out',delay:.1});
+  gsap.fromTo('.hero-eyebrow',{opacity:0,y:16},{opacity:1,y:0,duration:.8,delay:.2});
+  gsap.fromTo('.hero-desc',{opacity:0,y:16},{opacity:1,y:0,duration:.8,delay:.6});
+  gsap.fromTo('.hero-ctas',{opacity:0,y:16},{opacity:1,y:0,duration:.8,delay:.8});
+  gsap.fromTo('.h-stats,.slide-counter,.hero-scroll',{opacity:0},{opacity:1,duration:.8,delay:1,stagger:.1});
+  startSlides();
+}
+function startSlides(){
+  function next(){
+    slides[slideIdx].classList.remove('active');
+    slideIdx=(slideIdx+1)%slides.length;
+    slides[slideIdx].classList.add('active');
+    document.getElementById('sc-num').textContent=String(slideIdx+1).padStart(2,'0');
+    const prog=document.getElementById('sc-prog');
+    prog.style.transition='none';prog.style.width='0';
+    setTimeout(()=>{prog.style.transition='width 5s linear';prog.style.width='100%'},50);
+  }
+  document.getElementById('sc-prog').style.transition='width 5s linear';
+  document.getElementById('sc-prog').style.width='100%';
+  slideTimer=setInterval(next,5000);
+}
+
+/* ── GSAP SCROLL ANIMATIONS ─── */
+window.addEventListener('load',()=>{
+  /* philosophy title pinned parallax */
+  gsap.fromTo('#phi-title',{y:60,opacity:0},{y:0,opacity:1,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:'#philosophy',start:'top 75%',toggleActions:'play none none none'}});
+  gsap.fromTo('.phi-sub',{y:40,opacity:0},{y:0,opacity:1,duration:.9,delay:.2,ease:'power3.out',
+    scrollTrigger:{trigger:'#philosophy',start:'top 65%'}});
+  gsap.to('#phi-num',{y:-80,ease:'none',
+    scrollTrigger:{trigger:'#philosophy',start:'top bottom',end:'bottom top',scrub:1}});
+
+  /* about section */
+  gsap.fromTo('.about-copy > *',{x:40,opacity:0},{x:0,opacity:1,duration:.8,stagger:.12,ease:'power3.out',
+    scrollTrigger:{trigger:'#about',start:'top 70%'}});
+
+  /* counting numbers */
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target=+el.getAttribute('data-count');
+    ScrollTrigger.create({trigger:el,start:'top 80%',once:true,
+      onEnter:()=>{
+        let n=0;
+        const step=Math.ceil(target/30);
+        const t=setInterval(()=>{n=Math.min(n+step,target);el.textContent=n+(target>10?'+':'');if(n>=target)clearInterval(t)},40);
+      }
+    });
+  });
+
+  /* gallery head */
+  gsap.fromTo('.gal-head > *',{y:32,opacity:0},{y:0,opacity:1,stagger:.15,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:'#gallery',start:'top 80%'}});
+
+  /* team cards stagger */
+  gsap.fromTo('.tm',{y:48,opacity:0},{y:0,opacity:1,stagger:.12,duration:.85,ease:'power3.out',
+    scrollTrigger:{trigger:'#team',start:'top 75%'}});
+
+  /* quote cards */
+  gsap.fromTo('.qcard',{y:40,opacity:0},{y:0,opacity:1,stagger:.14,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:'#quotes',start:'top 70%'}});
+  gsap.fromTo('.qmini',{y:24,opacity:0},{y:0,opacity:1,stagger:.1,duration:.7,ease:'power3.out',
+    scrollTrigger:{trigger:'.quote-row',start:'top 85%'}});
+  /* quote bg parallax */
+  gsap.to('.quote-big',{y:-120,ease:'none',
+    scrollTrigger:{trigger:'#quotes',start:'top bottom',end:'bottom top',scrub:1.5}});
+
+  /* services */
+  gsap.fromTo('.srv-wrap > *',{y:40,opacity:0},{y:0,opacity:1,stagger:.18,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:'#services',start:'top 75%'}});
+
+  /* faq */
+  gsap.fromTo('.faq-wrap > *',{y:32,opacity:0},{y:0,opacity:1,stagger:.2,duration:.85,ease:'power3.out',
+    scrollTrigger:{trigger:'#faq',start:'top 80%'}});
+
+  /* contact */
+  gsap.fromTo('.cl > *',{x:-32,opacity:0},{x:0,opacity:1,stagger:.1,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:'#contact',start:'top 75%'}});
+  gsap.fromTo('.cf > *',{x:32,opacity:0},{x:0,opacity:1,stagger:.08,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:'#contact',start:'top 75%'}});
+
+  /* footer reveal */
+  gsap.fromTo('.ft-brand,.ft-tagline,.ft-founded,.ft-certs',{y:24,opacity:0},{y:0,opacity:1,stagger:.1,duration:.7,
+    scrollTrigger:{trigger:'footer',start:'top 90%'}});
+});
+
+/* ── HORIZONTAL GALLERY DRAG ─── */
+const galWrap=document.getElementById('galWrap'),galTrack=document.getElementById('galTrack');
+let isDown=false,startX=0,scrollLeft=0;
+galWrap.addEventListener('mousedown',e=>{isDown=true;galWrap.style.cursor='grabbing';startX=e.pageX-galWrap.offsetLeft;scrollLeft=galWrap.scrollLeft});
+galWrap.addEventListener('mouseleave',()=>{isDown=false;galWrap.style.cursor='none'});
+galWrap.addEventListener('mouseup',()=>{isDown=false;galWrap.style.cursor='none'});
+galWrap.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-galWrap.offsetLeft;const walk=(x-startX)*1.5;galWrap.scrollLeft=scrollLeft-walk});
+galWrap.style.overflowX='auto';
+galWrap.style.scrollbarWidth='none';
+galWrap.style.webkitOverflowScrolling='touch';
+
+/* gallery lightbox on click (not drag) */
+let didDrag=false;
+galWrap.addEventListener('mousedown',()=>{didDrag=false});
+galWrap.addEventListener('mousemove',()=>{didDrag=true});
+const galImgs=[],galCaps=[];
+document.querySelectorAll('.gal-item').forEach((el,i)=>{
+  galImgs.push(el.querySelector('img').src);
+  galCaps.push(el.querySelector('.gal-item-cap')?.textContent||'');
+  el.addEventListener('click',()=>{if(!didDrag)oLb(i)});
+});
+let li=0;
+function oLb(i){li=i;document.getElementById('lb-img').src=galImgs[i];document.getElementById('lb-cap').textContent=galCaps[i];document.getElementById('lb').classList.add('o')}
+function cLb(){document.getElementById('lb').classList.remove('o')}
+function lbN(d){li=(li+d+galImgs.length)%galImgs.length;oLb(li)}
+document.getElementById('lb').addEventListener('click',e=>{if(e.target===document.getElementById('lb'))cLb()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cLb();if(e.key==='ArrowLeft')lbN(-1);if(e.key==='ArrowRight')lbN(1)});
+
+/* ── ACCORDION ─── */
+function tSi(el){const o=el.classList.contains('o');document.querySelectorAll('.si').forEach(s=>s.classList.remove('o'));if(!o)el.classList.add('o')}
+function tFq(el){const o=el.classList.contains('o');document.querySelectorAll('.fq').forEach(f=>f.classList.remove('o'));if(!o)el.classList.add('o')}
+
+/* ── FORM ─── */
+function doSub(btn){btn.textContent='✓ Messaggio inviato — risponderemo entro 24 ore';btn.style.background='#222';btn.disabled=true}
+</script>
+</body>
+</html>
